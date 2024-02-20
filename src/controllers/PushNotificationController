@@ -1,0 +1,83 @@
+const { ONE_SIGNAL_CONFIG } = require("../config/oneSignalConfig");
+
+const pushNotificationService = require("../utils/pushNotificationService");
+const axios = require("axios");
+const { login } = require("./ParticipantController");
+
+exports.createNotification = (req, res, next) => {
+  const headers = {
+    Authorization: "Bearer " + ONE_SIGNAL_CONFIG.API_KEY,
+  };
+  axios
+    .post(
+      ONE_SIGNAL_CONFIG.URL,
+      {
+        app_id: ONE_SIGNAL_CONFIG.APP_ID,
+        included_segments: ["Subscribed Users"],
+        contents: {
+          en: req.body.contents,
+        },
+        headings: {
+          en: req.body.title,
+        },
+      },
+      { headers }
+    )
+    .then((resp) => {
+      return res.status(200).json(resp.data);
+    })
+    .catch((err) => {
+      return res.status(400).json(err.response);
+    });
+};
+
+/*
+exports.sendNotification = (req, res, next) => {
+  let message = {
+    app_id: ONE_SIGNAL_CONFIG.APP_ID,
+    contents: { en: "Test push notification" },
+    included_segment: ["Active Users", "Subscribed Users"],
+    content_available: true,
+    //TODO change the notif icon from here
+    small_icon: "ic_notification_icon",
+    data: {
+      PushTitle: "CUSTOM NOTIFICATION",
+    },
+  };
+
+  pushNotificationService.sendNotification(message, (error, result) => {
+    if (error) {
+      return next(error);
+    }
+    return res.status(200).send({
+      message: "Success",
+      data: result,
+    });
+  });
+};
+
+exports.sendNotificationToSpecificDevice = (req, res, next) => {
+  var message = {
+    app_id: ONE_SIGNAL_CONFIG.APP_ID,
+    contents: { en: "Test push notification" },
+    included_segment: ["included_player_ids"],
+    included_player_ids: req.body.devices,
+    content_available: true,
+    //TODO change the notif icon from here
+    small_icon: "ic_notification_icon",
+    data: {
+      PushTitle: "CUSTOM NOTIFICATION",
+    },
+  };
+
+  pushNotificationService.sendNotification(message, (error, result) => {
+    if (error) {
+      return next(error);
+    }
+    return res.status(200).send({
+      message: "Success",
+      data: result,
+    });
+  });
+};
+*/
